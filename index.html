@@ -279,11 +279,25 @@ document.querySelectorAll('.bottom-nav button').forEach(function(b){
 
 /* ---------- speech: TTS ---------- */
 let enVoice = null;
+/* 挑最自然的英文聲音：Premium > Enhanced > Natural/Neural > Siri > Google > Samantha */
+function scoreVoice(v){
+  if (v.lang.indexOf('en') !== 0) return -1;
+  let s = 0;
+  if (/premium/i.test(v.name)) s += 50;
+  else if (/enhanced/i.test(v.name)) s += 40;
+  else if (/natural|neural|online/i.test(v.name)) s += 35;
+  else if (/siri/i.test(v.name)) s += 30;
+  else if (/^Google US English/i.test(v.name)) s += 25;
+  else if (v.name === 'Samantha') s += 10;
+  if (/compact|eloquence|novelty|Albert|Bahh|Bells|Boing|Bubbles|Cellos|Wobble|Fred|Jester|Junior|Kathy|Organ|Ralph|Superstar|Trinoids|Whisper|Zarvox|Good News|Bad News/i.test(v.name)) s -= 60;
+  if (v.lang === 'en-US') s += 5;
+  return s;
+}
 function pickVoice(){
   const vs = speechSynthesis.getVoices();
-  enVoice = vs.find(function(v){ return v.name === 'Samantha'; })
-    || vs.find(function(v){ return v.lang === 'en-US' && !/compact/i.test(v.name); })
-    || vs.find(function(v){ return v.lang.indexOf('en') === 0; }) || null;
+  let best = null, bestS = 0;
+  vs.forEach(function(v){ const s = scoreVoice(v); if (s > bestS) { bestS = s; best = v; } });
+  enVoice = best;
 }
 pickVoice();
 if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoice;
