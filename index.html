@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>英語口說</title>
+<meta name="theme-color" content="#003d91">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="英語口說">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23003d91'/><path d='M20 24 h24 a4 4 0 0 1 4 4 v10 a4 4 0 0 1 -4 4 h-14 l-8 7 v-7 h-2 a4 4 0 0 1 -4 -4 v-10 a4 4 0 0 1 4 -4 z' fill='none' stroke='%23e8c25a' stroke-width='4' stroke-linejoin='round'/></svg>">
+<style>
+  :root {
+    --primary: #019ab3;
+    --primary-deep: #003d91;
+    --gold: #c79a00;
+    --gold-soft: #e8c25a;
+    --active: #e5f2f5;
+    --active-text: #003d91;
+    --bg: #f5f8fa;
+    --card: #ffffff;
+    --text: #1a2733;
+    --muted: #6b7785;
+    --border: #e2e8ee;
+    --success: #17b5ad;
+    --danger: #c94f4f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
+  body {
+    height: 100%; display: flex; flex-direction: column;
+    font-family: 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+    background: var(--bg); color: var(--text); letter-spacing: .01em;
+    -webkit-font-smoothing: antialiased;
+  }
+  #page-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  a { color: var(--primary); }
+
+  .hero {
+    background: linear-gradient(120deg, #003d91 0%, #019ab3 60%, #17b5ad 100%);
+    color: #eef4fb; padding: 1.2rem 1.4rem 1.4rem; text-align: center; position: relative;
+  }
+  .hero::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-soft), var(--gold));
+  }
+  .hero h1 { font-size: clamp(1.5rem, 5vw, 2.1rem); font-weight: 800; letter-spacing: .12em; }
+  .hero p { font-size: .88rem; opacity: .9; margin-top: .3rem; }
+
+  .bottom-nav {
+    position: relative; z-index: 9000; flex-shrink: 0; background: rgba(255,255,255,.97);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--border); box-shadow: 0 -2px 16px rgba(0,31,77,.08);
+    display: flex; justify-content: space-around; align-items: stretch;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .bottom-nav button {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    background: none; border: none; padding: 8px 0 9px; cursor: pointer;
+    color: var(--muted); font-size: .72rem; font-weight: 700; font-family: inherit; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent; transition: color .18s, background .18s;
+  }
+  .bottom-nav button.active { color: var(--active-text); background: var(--active); }
+  .ic-svg { width: 22px; height: 22px; display: block; }
+
+  .wrap { max-width: 820px; margin: 0 auto; padding: 1.1rem 1rem 2.5rem; }
+  .tab { display: none; }
+  .tab.active { display: block; animation: fade .25s; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: .35rem; }
+  .sec-head h2 { font-size: 1.25rem; color: var(--primary); font-weight: 800; }
+  .date-chip { font-size: .7rem; font-weight: 700; color: var(--active-text); background: var(--active); border-radius: 20px; padding: .12rem .6rem; }
+  .lead { color: var(--muted); font-size: .88rem; line-height: 1.6; margin-bottom: 1rem; }
+
+  .chip-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: .55rem; margin-bottom: 1rem; }
+  .chip {
+    background: var(--card); border: 1.5px solid var(--border); border-radius: 30px;
+    padding: .5rem 0; text-align: center; font-family: inherit; font-size: .88rem; font-weight: 700;
+    color: var(--text); cursor: pointer; white-space: nowrap; transition: .15s;
+  }
+  .chip:hover { border-color: var(--primary); }
+  .chip.on { background: var(--active); border-color: var(--primary); color: var(--active-text); }
+
+  .card { background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 1rem 1.1rem; margin-bottom: 1rem; box-shadow: 0 2px 12px rgba(0,31,77,.05); }
+
+  /* accordion */
+  .acc-sec { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; margin-bottom: .6rem; overflow: hidden; }
+  .acc-head {
+    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+    background: none; border: none; font-family: inherit; cursor: pointer;
+    padding: .8rem 1rem; font-size: .98rem; font-weight: 800; color: var(--text); text-align: left;
+  }
+  .acc-sec.open > .acc-head { background: #fdf6e0; color: #6b5307; }
+  .acc-head .arrow { transition: transform .2s; color: var(--muted); flex-shrink: 0; }
+  .acc-sec.open > .acc-head .arrow { transform: rotate(90deg); }
+  .acc-body { display: none; padding: .2rem 1rem .9rem; }
+  .acc-sec.open > .acc-body { display: block; }
+
+  /* chat */
+  .chat-box { min-height: 300px; }
+  .bubble { max-width: 88%; margin-bottom: .7rem; padding: .6rem .85rem; border-radius: 14px; font-size: .95rem; line-height: 1.55; white-space: pre-wrap; }
+  .bubble.me { margin-left: auto; background: var(--active); color: var(--active-text); border-bottom-right-radius: 4px; }
+  .bubble.ai { margin-right: auto; background: #fff; border: 1.5px solid var(--border); border-bottom-left-radius: 4px; }
+  .bubble.sys { margin: 0 auto .7rem; background: none; border: none; color: var(--muted); font-size: .8rem; text-align: center; }
+  .fixline { max-width: 88%; margin: -.3rem 0 .8rem auto; padding: .35rem .7rem; border-left: 3px solid var(--gold); background: #fdf6e0; color: #6b5307; font-size: .82rem; line-height: 1.5; border-radius: 0 8px 8px 0; }
+  .fixline b { color: #4a3708; }
+
+  .talk-bar { display: flex; gap: .5rem; align-items: center; margin-top: .8rem; }
+  .talk-bar input {
+    flex: 1; font-family: inherit; font-size: .95rem; padding: .65rem .9rem;
+    border: 1.5px solid var(--border); border-radius: 30px; outline: none; background: #fff; min-width: 0;
+  }
+  .talk-bar input:focus { border-color: var(--primary); }
+  .icon-btn {
+    flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    background: linear-gradient(135deg, #019ab3, #003d91); box-shadow: 0 3px 10px rgba(0,31,77,.25);
+  }
+  .icon-btn:disabled { opacity: .45; cursor: default; }
+  .icon-btn.rec { background: linear-gradient(135deg, #e05555, #b02a2a); animation: pulse 1.1s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(224,85,85,.45); } 50% { box-shadow: 0 0 0 12px rgba(224,85,85,0); } }
+  .hint { font-size: .78rem; color: var(--muted); margin-top: .5rem; text-align: center; }
+
+  .btn { display: inline-block; background: linear-gradient(135deg, #019ab3, #003d91); color: #fff; font-weight: 800; font-size: .92rem; font-family: inherit; border: none; border-radius: 40px; padding: .55rem 1.3rem; cursor: pointer; box-shadow: 0 3px 10px rgba(0,31,77,.25); }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-ghost { background: #fff; color: var(--primary); border: 1.5px solid var(--primary); box-shadow: none; }
+  .btn-sm { font-size: .8rem; padding: .35rem .9rem; }
+
+  /* shadowing */
+  .sh-item { border-bottom: 1px dashed var(--border); padding: .7rem 0; }
+  .sh-item:last-child { border-bottom: none; }
+  .sh-en { font-size: .98rem; font-weight: 700; line-height: 1.5; }
+  .sh-zh { font-size: .8rem; color: var(--muted); margin-top: .15rem; line-height: 1.5; }
+  .sh-btns { display: flex; gap: .45rem; margin-top: .5rem; flex-wrap: wrap; align-items: center; }
+  .sh-result { margin-top: .55rem; font-size: .9rem; line-height: 1.7; display: none; }
+  .sh-result .score { font-weight: 800; margin-right: .4rem; }
+  .sh-result .w-hit { color: #0e7d5b; }
+  .sh-result .w-miss { color: var(--danger); text-decoration: underline; }
+  .sh-heard { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+
+  /* topics */
+  .tp-phrases { margin: .5rem 0; }
+  .tp-phrases li { margin-left: 1.1rem; font-size: .9rem; line-height: 1.7; }
+  .tp-phrases .zh { color: var(--muted); font-size: .8rem; }
+  .tp-qs li { margin-left: 1.1rem; font-size: .9rem; line-height: 1.7; color: var(--active-text); }
+
+  .scen-desc { font-size: .85rem; color: var(--muted); line-height: 1.6; margin-bottom: .8rem; }
+
+  @media (max-width: 520px) {
+    .chip-row { grid-template-columns: repeat(2, 1fr); }
+    .bubble { max-width: 94%; }
+  }
+</style>
+</head>
+<body>
+
+<div id="page-scroll">
+  <div class="hero">
+    <h1>英語口說</h1>
+    <p>Talk about the economy and markets — in English, every day.</p>
+  </div>
+
+  <div class="wrap">
+
+    <!-- ============ 自由對話 ============ -->
+    <section class="tab active" id="tab-talk">
+      <div class="sec-head"><h2>自由對話</h2><span class="date-chip">07/18</span></div>
+      <p class="lead">按下麥克風直接開口，AI 教練會用英文回答你，並在下方金色框幫你把句子改得更自然。主題聚焦總體經濟與股市。</p>
+      <div class="card">
+        <div class="chat-box" id="talkBox">
+          <div class="bubble ai">Hi Iris! I'm your English coach. Let's talk about the markets today. How do you feel about the stock market this week?</div>
+        </div>
+        <div class="talk-bar">
+          <input id="talkInput" type="text" placeholder="按麥克風說話，或在此輸入…" autocomplete="off">
+          <button class="icon-btn" id="talkMic" title="按住說話">
+            <svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></svg>
+          </button>
+          <button class="icon-btn" id="talkSend" title="送出">
+            <svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
+          </button>
+        </div>
+        <p class="hint" id="talkHint">建議用 Chrome 開啟，語音辨識最穩定</p>
+      </div>
+    </section>
+
+    <!-- ============ 今日實戰 ============ -->
+    <section class="tab" id="tab-daily">
+      <div class="sec-head"><h2>今日實戰</h2><span class="date-chip" id="dailyDate">--/--</span></div>
+      <p class="lead">直接拿「理財小幫手」今天的真實行情與新聞當教材：先練習用英文唸出今日盤勢，再挑一則新聞跟 AI 討論。<a href="https://iriswen518-alt.github.io/morning-board/" target="_blank" rel="noopener">資料來源：理財小幫手</a></p>
+      <div class="sec-head"><h2>行情朗讀</h2></div>
+      <div class="card" id="dailyMarket"><p class="hint">載入今日行情中…</p></div>
+      <div class="sec-head"><h2>新聞討論</h2></div>
+      <div id="dailyNews"><p class="hint">載入今日新聞中…</p></div>
+    </section>
+
+    <!-- ============ 情境演練 ============ -->
+    <section class="tab" id="tab-scen">
+      <div class="sec-head"><h2>情境演練</h2><span class="date-chip">07/18</span></div>
+      <p class="lead">選一個工作場景，AI 扮演對方角色，你用英文應對。講完一輪 AI 才會提示更好的說法。</p>
+      <div class="chip-row" id="scenChips"></div>
+      <div class="card">
+        <p class="scen-desc" id="scenDesc">請先選擇上方情境。</p>
+        <div class="chat-box" id="scenBox"></div>
+        <div class="talk-bar">
+          <input id="scenInput" type="text" placeholder="按麥克風說話，或在此輸入…" autocomplete="off">
+          <button class="icon-btn" id="scenMic" title="按住說話">
+            <svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></svg>
+          </button>
+          <button class="icon-btn" id="scenSend" title="送出">
+            <svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 跟讀練習 ============ -->
+    <section class="tab" id="tab-shadow">
+      <div class="sec-head"><h2>跟讀練習</h2><span class="date-chip">07/18</span></div>
+      <p class="lead">先聽 AI 唸一次（可放慢），再按麥克風跟著唸。系統會比對你唸出的字，綠色＝有唸到、紅色＝漏掉或唸錯。</p>
+      <div id="shadowList"></div>
+    </section>
+
+    <!-- ============ 每日話題 ============ -->
+    <section class="tab" id="tab-topic">
+      <div class="sec-head"><h2>每日話題</h2><span class="date-chip">07/18</span></div>
+      <p class="lead">每天輪一個總經／股市話題，附常用句型與討論問題。按「開始對話」直接帶著這個主題去自由對話。</p>
+      <div id="topicToday"></div>
+      <div class="sec-head" style="margin-top:1.2rem"><h2>話題清單</h2></div>
+      <div id="topicList"></div>
+    </section>
+
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="active" data-tab="talk">
+    <svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><path d="M12 18v4"/></svg>
+    自由對話
+  </button>
+  <button data-tab="daily">
+    <svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M6 15l4-5 3 3 5-7"/></svg>
+    今日實戰
+  </button>
+  <button data-tab="scen">
+    <svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" transform="translate(-2,-6)"/><circle cx="8" cy="8" r="3.4"/><path d="M2.5 20c.6-3.4 2.9-5.4 5.5-5.4S12.9 16.6 13.5 20"/><circle cx="17" cy="9.5" r="2.8"/><path d="M14.5 20c.5-2.8 2.3-4.5 4.5-4.4 1.2 0 2.3.5 3 1.4"/></svg>
+    情境演練
+  </button>
+  <button data-tab="shadow">
+    <svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9.5 9.5 0 0 1 0 13"/></svg>
+    跟讀練習
+  </button>
+  <button data-tab="topic">
+    <svg class="ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 9h18"/><path d="M8 14h5"/></svg>
+    每日話題
+  </button>
+</nav>
+
+<script>
+'use strict';
+const API_URL = 'https://ziyu-chat.iriswen518.workers.dev';
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.bottom-nav button').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.bottom-nav button').forEach(function(x){ x.classList.remove('active'); });
+    document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+    b.classList.add('active');
+    document.getElementById('tab-' + b.dataset.tab).classList.add('active');
+    document.getElementById('page-scroll').scrollTop = 0;
+  });
+});
+
+/* ---------- speech: TTS ---------- */
+let enVoice = null;
+function pickVoice(){
+  const vs = speechSynthesis.getVoices();
+  enVoice = vs.find(function(v){ return v.name === 'Samantha'; })
+    || vs.find(function(v){ return v.lang === 'en-US' && !/compact/i.test(v.name); })
+    || vs.find(function(v){ return v.lang.indexOf('en') === 0; }) || null;
+}
+pickVoice();
+if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoice;
+
+function speak(text, rate){
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = rate || 0.95;
+    if (enVoice) u.voice = enVoice;
+    speechSynthesis.speak(u);
+  } catch(e){}
+}
+
+/* ---------- speech: recognition ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+function makeRecognizer(onFinal, onInterim, onEnd){
+  if (!SR) return null;
+  const r = new SR();
+  r.lang = 'en-US'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
+  let finalText = '';
+  r.onresult = function(ev){
+    let interim = '';
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) finalText += ev.results[i][0].transcript;
+      else interim += ev.results[i][0].transcript;
+    }
+    if (interim && onInterim) onInterim(finalText + interim);
+  };
+  r.onend = function(){ if (onEnd) onEnd(); if (finalText.trim() && onFinal) onFinal(finalText.trim()); finalText=''; };
+  r.onerror = function(){ finalText=''; };
+  return r;
+}
+
+/* ---------- worker call ---------- */
+async function askAI(q, history){
+  const ctrl = new AbortController();
+  const to = setTimeout(function(){ ctrl.abort(); }, 25000);
+  try {
+    const r = await fetch(API_URL, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bot: 'xuexi', q: q, history: history || [] }), signal: ctrl.signal,
+    });
+    clearTimeout(to);
+    const d = await r.json();
+    return (d && d.reply) ? d.reply : '';
+  } catch(e){ return ''; }
+}
+
+function parseCoach(raw){
+  // expected format:  FIX: ...\nREPLY: ...
+  let fix = '', reply = raw;
+  const m = raw.match(/FIX\s*[:：]([\s\S]*?)(?:REPLY\s*[:：])([\s\S]*)/i);
+  if (m) { fix = m[1].trim(); reply = m[2].trim(); }
+  if (/^(ok|okay|good|natural)[.!]?$/i.test(fix)) fix = '';
+  return { fix: fix, reply: reply };
+}
+
+/* ---------- generic chat wiring ---------- */
+function setupChat(cfg){
+  const box = document.getElementById(cfg.box);
+  const input = document.getElementById(cfg.input);
+  const mic = document.getElementById(cfg.mic);
+  const send = document.getElementById(cfg.send);
+  const history = [];
+
+  function bubble(cls, text){
+    const d = document.createElement('div');
+    d.className = 'bubble ' + cls; d.textContent = text;
+    box.appendChild(d); box.scrollIntoView(false);
+    d.scrollIntoView({ block: 'nearest' });
+    return d;
+  }
+  function fixNote(text){
+    const d = document.createElement('div');
+    d.className = 'fixline';
+    d.innerHTML = '<b>更自然的說法:</b> ';
+    d.appendChild(document.createTextNode(text));
+    box.appendChild(d); d.scrollIntoView({ block: 'nearest' });
+  }
+
+  async function submit(text){
+    text = (text || '').trim();
+    if (!text) return;
+    input.value = '';
+    bubble('me', text);
+    send.disabled = true; mic.disabled = true;
+    const typing = bubble('sys', '教練思考中…');
+    const q = cfg.prompt(text);
+    const raw = await askAI(q, history.slice(-10));
+    typing.remove();
+    send.disabled = false; mic.disabled = false;
+    if (!raw) { bubble('sys', '網路不太順，請再試一次'); return; }
+    const p = parseCoach(raw);
+    if (p.fix) fixNote(p.fix);
+    bubble('ai', p.reply);
+    history.push({ role: 'user', text: text });
+    history.push({ role: 'assistant', text: p.reply });
+    speak(p.reply);
+  }
+
+  send.addEventListener('click', function(){ submit(input.value); });
+  input.addEventListener('keydown', function(e){ if (e.key === 'Enter') submit(input.value); });
+
+  let recognizing = false, rec = null;
+  mic.addEventListener('click', function(){
+    if (!SR) { bubble('sys', '此瀏覽器不支援語音辨識，請改用 Chrome'); return; }
+    if (recognizing) { try { rec.stop(); } catch(e){} return; }
+    speechSynthesis.cancel();
+    rec = makeRecognizer(
+      function(finalText){ submit(finalText); },
+      function(partial){ input.value = partial; },
+      function(){ recognizing = false; mic.classList.remove('rec'); }
+    );
+    try { rec.start(); recognizing = true; mic.classList.add('rec'); } catch(e){}
+  });
+
+  return { bubble: bubble, reset: function(greet){ box.innerHTML=''; history.length = 0; if (greet){ bubble('ai', greet); history.push({role:'assistant', text: greet}); speak(greet); } } };
+}
+
+/* ---------- 自由對話 ---------- */
+const COACH_RULES =
+  'You are a friendly English speaking coach for Iris, a Taiwanese wealth-management manager. ' +
+  'Focus the conversation on macro economics and stock markets (Fed, inflation, US and Taiwan stocks, bonds, FX). ' +
+  'Keep replies SHORT (2-3 simple sentences) and always end with one follow-up question. ' +
+  'Reply ONLY in English, in EXACTLY this format:\n' +
+  'FIX: <the student\'s last sentence rewritten in natural English; write OK if it was already natural>\n' +
+  'REPLY: <your reply>\n';
+
+let talkTopicPreload = '';
+let todayCtx = '';   /* 理財小幫手今日行情＋新聞重點，載入後注入 AI 對話 */
+const talkChat = setupChat({
+  box: 'talkBox', input: 'talkInput', mic: 'talkMic', send: 'talkSend',
+  prompt: function(text){
+    let q = COACH_RULES;
+    if (todayCtx) { q += 'Today\'s real market context (for your reference):\n' + todayCtx + '\n'; }
+    if (talkTopicPreload) { q += 'Current discussion topic: ' + talkTopicPreload + '\n'; }
+    return q + 'The student just said: "' + text + '"';
+  }
+});
+
+/* ---------- 情境演練 ---------- */
+const SCENARIOS = [
+  { key: '客戶會談', desc: 'AI 扮演想了解市場前景的外籍客戶，你是理財顧問，用英文說明近期總經與股市看法。',
+    role: 'You are Mr. Miller, an American client visiting a Taiwanese bank. You are worried about the market outlook and ask the wealth manager (the student) simple questions about the economy, interest rates and stocks. Ask ONE question at a time.',
+    greet: 'Hello! Thanks for meeting me today. I saw the market dropped last week. Should I be worried about my portfolio?' },
+  { key: '晨會簡報', desc: 'AI 扮演你的同事，你在晨會用英文簡報昨晚美股與總經重點，對方會追問細節。',
+    role: 'You are a colleague at the morning meeting of a Taiwanese bank. The student is briefing you on overnight US markets and macro news. Listen and ask ONE short follow-up question at a time about details (which sector, why, what it means for Taiwan stocks).',
+    greet: 'Morning! You are up first today. Can you give us a quick recap of the US market overnight?' },
+  { key: '媒體訪問', desc: 'AI 扮演財經記者，訪問你對通膨、利率與台股的看法，練習有條理地表達觀點。',
+    role: 'You are a financial journalist interviewing the student, a bank wealth-management manager, about inflation, central bank policy and the Taiwan stock market. Ask ONE clear interview question at a time, sometimes challenging their view politely.',
+    greet: 'Thank you for taking this interview. First question: how do you see inflation trending for the rest of this year?' },
+  { key: '同業交流', desc: 'AI 扮演國際研討會上認識的外國銀行主管，練習專業社交閒聊與交換市場看法。',
+    role: 'You are a friendly banker from Singapore meeting the student at an international finance conference. Make small talk and exchange views on markets and the economy. Keep it casual and ask ONE question at a time.',
+    greet: 'Hi, I do not think we have met — I am Daniel from Singapore. Great keynote this morning, right? What did you think about his view on rate cuts?' },
+];
+let curScen = null;
+const scenChipsEl = document.getElementById('scenChips');
+SCENARIOS.forEach(function(s, i){
+  const b = document.createElement('button');
+  b.className = 'chip'; b.textContent = s.key;
+  b.addEventListener('click', function(){
+    document.querySelectorAll('#scenChips .chip').forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    curScen = s;
+    document.getElementById('scenDesc').textContent = s.desc;
+    scenChat.reset(s.greet);
+  });
+  scenChipsEl.appendChild(b);
+});
+const scenChat = setupChat({
+  box: 'scenBox', input: 'scenInput', mic: 'scenMic', send: 'scenSend',
+  prompt: function(text){
+    const role = curScen ? curScen.role : SCENARIOS[0].role;
+    return 'Role-play. ' + role + '\n' +
+      (todayCtx ? 'Today\'s real market context (use it to make the conversation realistic):\n' + todayCtx + '\n' : '') +
+      'Stay in character. Keep replies SHORT (2-3 simple sentences). Reply ONLY in English, in EXACTLY this format:\n' +
+      'FIX: <the student\'s last sentence rewritten in natural English; write OK if it was already natural>\n' +
+      'REPLY: <your in-character reply>\n' +
+      'The student just said: "' + text + '"';
+  }
+});
+
+/* ---------- 跟讀練習 ---------- */
+const SHADOW = [
+  { cat: '盤勢英語', items: [
+    { en: 'The S&P 500 closed slightly higher after a volatile session.', zh: '標普五百在震盪後小幅收高。' },
+    { en: 'Tech stocks led the rally, with semiconductors up more than two percent.', zh: '科技股領漲，半導體漲逾百分之二。' },
+    { en: 'The market pulled back on profit-taking after last week\'s strong gains.', zh: '上週大漲後市場因獲利了結而回落。' },
+    { en: 'Investors are waiting on the sidelines ahead of the Fed meeting.', zh: '聯準會會議前投資人觀望。' },
+    { en: 'The Taiwan weighted index opened lower, tracking overnight losses on Wall Street.', zh: '台股加權指數跟隨美股夜盤下跌開低。' },
+    { en: 'Foreign investors turned net buyers of Taiwanese equities this week.', zh: '外資本週轉為買超台股。' },
+    { en: 'Trading volume picked up as the index broke through a key resistance level.', zh: '指數突破關鍵壓力位，成交量放大。' },
+    { en: 'Defensive sectors outperformed as risk appetite faded.', zh: '風險偏好降溫，防禦類股表現相對強勢。' },
+  ]},
+  { cat: '總經英語', items: [
+    { en: 'Inflation is cooling, but core prices remain sticky.', zh: '通膨降溫，但核心物價仍具僵固性。' },
+    { en: 'The Fed kept rates unchanged and signaled two cuts later this year.', zh: '聯準會按兵不動，並暗示今年稍晚降息兩次。' },
+    { en: 'A stronger dollar puts pressure on emerging market currencies.', zh: '美元走強對新興市場貨幣造成壓力。' },
+    { en: 'The labor market is softening, with job openings falling for three straight months.', zh: '勞動市場轉弱，職缺連三個月下滑。' },
+    { en: 'Bond yields dropped as investors priced in a slower economy.', zh: '投資人反映經濟放緩預期，債券殖利率下滑。' },
+    { en: 'Consumer spending held up better than expected in the second quarter.', zh: '第二季消費支出優於預期。' },
+    { en: 'An inverted yield curve is often seen as a recession signal.', zh: '殖利率曲線倒掛常被視為衰退訊號。' },
+    { en: 'Central banks are walking a fine line between growth and inflation.', zh: '各國央行在成長與通膨之間走鋼索。' },
+  ]},
+  { cat: '客戶英語', items: [
+    { en: 'Given your risk profile, I would suggest a more balanced allocation.', zh: '考量您的風險屬性，我建議更均衡的資產配置。' },
+    { en: 'Diversification helps smooth out returns over the long run.', zh: '分散投資有助於長期平滑報酬。' },
+    { en: 'Past performance is no guarantee of future results.', zh: '過去績效不保證未來表現。' },
+    { en: 'This bond fund offers a steady income stream with lower volatility.', zh: '這檔債券基金提供穩定收益且波動較低。' },
+    { en: 'Let me walk you through the fees before you make a decision.', zh: '在您決定前，讓我先說明相關費用。' },
+    { en: 'We can rebalance your portfolio quarterly to stay on target.', zh: '我們可以每季再平衡，讓投資組合維持在目標配置。' },
+    { en: 'Market timing is difficult; staying invested usually works better.', zh: '擇時進出很難，持續投資通常效果更好。' },
+    { en: 'If you have a longer horizon, you can afford to take more equity exposure.', zh: '若投資期間較長，可以承受較高的股票部位。' },
+  ]},
+];
+
+function normWords(s){
+  return s.toLowerCase()
+    .replace(/(\d),(\d)/g, '$1$2')      /* 7,458 -> 7458，與語音辨識結果一致 */
+    .replace(/%/g, ' percent ')
+    .replace(/[^a-z0-9'. ]+/g, ' ')
+    .replace(/(\d)\.(\d)/g, '$1 point $2')
+    .replace(/\./g, ' ')
+    .split(/\s+/).filter(Boolean);
+}
+function lcsMatch(target, heard){
+  const a = target, b = heard, m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, function(){ return new Array(n+1).fill(0); });
+  for (let i = m-1; i >= 0; i--) for (let j = n-1; j >= 0; j--)
+    dp[i][j] = a[i] === b[j] ? dp[i+1][j+1] + 1 : Math.max(dp[i+1][j], dp[i][j+1]);
+  const hit = new Array(m).fill(false);
+  let i = 0, j = 0;
+  while (i < m && j < n) {
+    if (a[i] === b[j]) { hit[i] = true; i++; j++; }
+    else if (dp[i+1][j] >= dp[i][j+1]) i++; else j++;
+  }
+  return hit;
+}
+
+function makeShadowItem(it){
+  const d = document.createElement('div');
+  d.className = 'sh-item';
+  d.innerHTML = '<div class="sh-en"></div><div class="sh-zh"></div>' +
+    '<div class="sh-btns">' +
+    '<button class="btn btn-ghost btn-sm b-play">播放</button>' +
+    '<button class="btn btn-ghost btn-sm b-slow">慢速</button>' +
+    '<button class="btn btn-sm b-rec">跟讀</button>' +
+    '</div><div class="sh-result"></div><div class="sh-heard"></div>';
+  d.querySelector('.sh-en').textContent = it.en;
+  d.querySelector('.sh-zh').textContent = it.zh;
+  d.querySelector('.b-play').addEventListener('click', function(){ speak(it.en, 0.95); });
+  d.querySelector('.b-slow').addEventListener('click', function(){ speak(it.en, 0.65); });
+  const recBtn = d.querySelector('.b-rec');
+  recBtn.addEventListener('click', function(){
+    if (!SR) { alert('此瀏覽器不支援語音辨識，請改用 Chrome'); return; }
+    speechSynthesis.cancel();
+    recBtn.textContent = '聆聽中';
+    const r = makeRecognizer(function(heardText){
+      const tw = normWords(it.en), hw = normWords(heardText);
+      const hit = lcsMatch(tw, hw);
+      const pct = tw.length ? Math.round(hit.filter(Boolean).length / tw.length * 100) : 0;
+      const res = d.querySelector('.sh-result');
+      res.style.display = 'block';
+      res.innerHTML = '<span class="score"></span>';
+      res.querySelector('.score').textContent = pct + '分';
+      res.querySelector('.score').style.color = pct >= 80 ? '#0e7d5b' : (pct >= 50 ? '#c79a00' : '#c94f4f');
+      /* 逐字比對上色：normWords 可能把一個原字拆成多個 token（如 1.01 -> 1 point 01），
+         以該字對應的所有 token 是否全中來決定顏色 */
+      const orig = it.en.split(/\s+/);
+      let wi = 0;
+      orig.forEach(function(w){
+        const span = document.createElement('span');
+        span.textContent = w + ' ';
+        const toks = normWords(w);
+        if (toks.length) {
+          let ok = true;
+          for (let k = 0; k < toks.length; k++) { if (!hit[wi + k]) ok = false; }
+          wi += toks.length;
+          span.className = ok ? 'w-hit' : 'w-miss';
+        }
+        res.appendChild(span);
+      });
+      d.querySelector('.sh-heard').textContent = '你唸的: ' + heardText;
+    }, null, function(){ recBtn.textContent = '跟讀'; });
+    try { r.start(); } catch(e){ recBtn.textContent = '跟讀'; }
+  });
+  return d;
+}
+
+const shadowList = document.getElementById('shadowList');
+SHADOW.forEach(function(group, gi){
+  const sec = document.createElement('div');
+  sec.className = 'acc-sec' + (gi === 0 ? ' open' : '');
+  const head = document.createElement('button');
+  head.className = 'acc-head';
+  head.innerHTML = '<span></span><svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  head.querySelector('span').textContent = group.cat;
+  head.addEventListener('click', function(){ sec.classList.toggle('open'); });
+  sec.appendChild(head);
+  const body = document.createElement('div');
+  body.className = 'acc-body';
+  group.items.forEach(function(it){ body.appendChild(makeShadowItem(it)); });
+  sec.appendChild(body);
+  shadowList.appendChild(sec);
+});
+
+/* ---------- 每日話題 ---------- */
+const TOPICS = [
+  { t: 'Interest Rate Decisions', zh: '利率決策', ph: [
+      ['The Fed is expected to hold rates steady.', '市場預期聯準會將按兵不動。'],
+      ['Rate cuts are already priced in.', '降息預期已反映在價格上。'],
+      ['Higher for longer is the new normal.', '高利率維持更久成為新常態。']],
+    qs: ['Do you think the Fed will cut rates this year? Why?', 'How do rate changes affect your clients\' portfolios?', 'What happens to bank stocks when rates fall?'] },
+  { t: 'Inflation Watch', zh: '通膨觀察', ph: [
+      ['Headline inflation eased to three percent.', '整體通膨降到百分之三。'],
+      ['Core inflation remains sticky.', '核心通膨仍具僵固性。'],
+      ['Wage growth is feeding into services prices.', '薪資成長推升服務類價格。']],
+    qs: ['Is inflation still a problem in Taiwan?', 'How does inflation change the way people invest?', 'What assets protect against inflation?'] },
+  { t: 'Bull or Bear Market', zh: '多空判斷', ph: [
+      ['We are still in a structural bull market.', '目前仍處於結構性多頭。'],
+      ['Valuations look stretched at these levels.', '目前估值偏高。'],
+      ['I would stay cautious in the short term.', '短線我會保持謹慎。']],
+    qs: ['Are you bullish or bearish right now? Why?', 'What signals tell you a market top is near?', 'How should investors act in a bear market?'] },
+  { t: 'Taiwan Semiconductors', zh: '台灣半導', ph: [
+      ['TSMC is the backbone of the Taiwan market.', '台積電是台股的支柱。'],
+      ['AI demand is driving chip orders.', 'AI 需求帶動晶片訂單。'],
+      ['The sector is highly cyclical.', '這個產業景氣循環性很強。']],
+    qs: ['Why do foreign investors care so much about TSMC?', 'Is the AI boom sustainable?', 'What are the risks for Taiwan\'s chip industry?'] },
+  { t: 'US Employment Data', zh: '美國就業', ph: [
+      ['Nonfarm payrolls came in below expectations.', '非農就業低於預期。'],
+      ['The unemployment rate ticked up slightly.', '失業率小幅上升。'],
+      ['Bad news for jobs can be good news for stocks.', '就業轉弱有時反而利多股市。']],
+    qs: ['Why do markets watch the jobs report so closely?', 'What does a weak labor market mean for the Fed?', 'How did the market react to the last jobs report?'] },
+  { t: 'Bond Yields', zh: '債券殖利', ph: [
+      ['The ten-year yield is a key benchmark.', '十年期殖利率是重要指標。'],
+      ['Yields and bond prices move in opposite directions.', '殖利率與債券價格反向變動。'],
+      ['Locking in yields looks attractive now.', '現在鎖定殖利率頗具吸引力。']],
+    qs: ['Why are your clients interested in bonds now?', 'What happens to bonds if rates fall?', 'How do you explain duration to a client?'] },
+  { t: 'Currency Moves', zh: '匯率變動', ph: [
+      ['The Taiwan dollar strengthened against the greenback.', '台幣兌美元升值。'],
+      ['A weak yen boosts Japanese exporters.', '日圓走弱有利日本出口商。'],
+      ['Currency risk can eat into overseas returns.', '匯率風險會侵蝕海外投資報酬。']],
+    qs: ['How does a strong US dollar affect Asian markets?', 'Should investors hedge currency risk?', 'What drives the Taiwan dollar these days?'] },
+  { t: 'Earnings Season', zh: '財報季節', ph: [
+      ['Most companies beat estimates this quarter.', '本季多數公司優於預期。'],
+      ['Guidance matters more than the headline numbers.', '財測比帳面數字更重要。'],
+      ['The stock sold off despite a strong report.', '財報亮眼股價卻下跌。']],
+    qs: ['Which earnings reports do you follow closely?', 'Why do stocks sometimes fall on good earnings?', 'What did the latest tech earnings tell us?'] },
+  { t: 'Diversification', zh: '資產配置', ph: [
+      ['Do not put all your eggs in one basket.', '別把雞蛋放在同一個籃子。'],
+      ['A sixty-forty portfolio is the classic mix.', '股六債四是經典配置。'],
+      ['Rebalancing keeps your risk under control.', '再平衡能控制風險。']],
+    qs: ['How do you explain diversification to a new client?', 'Does the sixty-forty portfolio still work?', 'What alternatives do you add to a portfolio?'] },
+  { t: 'Market Corrections', zh: '市場回檔', ph: [
+      ['A correction is a drop of ten percent or more.', '回檔指下跌一成以上。'],
+      ['Volatility is the price of admission.', '波動是進場的入場費。'],
+      ['Stay calm and stick to your plan.', '保持冷靜，堅守紀律。']],
+    qs: ['What should investors do during a correction?', 'How do you calm a nervous client?', 'Is buying the dip a good strategy?'] },
+  { t: 'Safe-Haven Assets', zh: '避險資產', ph: [
+      ['Gold hit another record high.', '金價再創新高。'],
+      ['Investors rushed into safe havens.', '投資人湧入避險資產。'],
+      ['The yen and gold usually rise in a crisis.', '危機時日圓與黃金通常上漲。']],
+    qs: ['Why is gold rising this year?', 'What counts as a safe-haven asset?', 'Do you recommend gold to your clients?'] },
+  { t: 'Recession Signals', zh: '衰退訊號', ph: [
+      ['The yield curve has been inverted for months.', '殖利率曲線已倒掛數月。'],
+      ['A soft landing is still possible.', '軟著陸仍有可能。'],
+      ['Leading indicators are flashing yellow.', '領先指標亮黃燈。']],
+    qs: ['Do you expect a recession in the next year?', 'Which indicators do you trust most?', 'How should a portfolio prepare for a recession?'] },
+  { t: 'ETF Investing', zh: '指數投資', ph: [
+      ['ETFs offer cheap, instant diversification.', 'ETF 提供低成本又即時的分散。'],
+      ['High-dividend ETFs are popular in Taiwan.', '高股息 ETF 在台灣很受歡迎。'],
+      ['Watch the tracking error and total expense ratio.', '注意追蹤誤差與總費用率。']],
+    qs: ['Why are ETFs so popular with Taiwanese investors?', 'Active or passive — which do you prefer?', 'How do you pick a good ETF?'] },
+  { t: 'AI and the Market', zh: '人工智慧', ph: [
+      ['AI names have driven most of the index gains.', 'AI 概念股貢獻大盤多數漲幅。'],
+      ['Is this a bubble or a new era?', '這是泡沫還是新時代？'],
+      ['Capex on data centers keeps climbing.', '資料中心資本支出持續攀升。']],
+    qs: ['Is the AI rally a bubble?', 'Which industries will AI change first?', 'How does AI demand help Taiwan\'s economy?'] },
+  { t: 'China\'s Economy', zh: '中國經濟', ph: [
+      ['The property sector remains a drag on growth.', '房地產仍拖累成長。'],
+      ['Stimulus measures have had limited effect.', '刺激措施效果有限。'],
+      ['Supply chains are shifting out of China.', '供應鏈正移出中國。']],
+    qs: ['How does China\'s slowdown affect Taiwan?', 'Can stimulus revive the Chinese economy?', 'Where are supply chains moving to?'] },
+  { t: 'Oil and Energy', zh: '油價能源', ph: [
+      ['Oil spiked on supply concerns.', '供給疑慮推升油價。'],
+      ['Energy stocks are a natural inflation hedge.', '能源股是天然的通膨避險。'],
+      ['The green transition needs massive investment.', '綠色轉型需要龐大投資。']],
+    qs: ['How do oil prices affect inflation?', 'Would you invest in energy stocks now?', 'Is the green transition an investment opportunity?'] },
+];
+
+function topicCard(tp, open, isToday){
+  const sec = document.createElement('div');
+  sec.className = 'acc-sec' + (open ? ' open' : '');
+  const head = document.createElement('button');
+  head.className = 'acc-head';
+  const label = (isToday ? '今日 · ' : '') + tp.t + '（' + tp.zh + '）';
+  head.innerHTML = '<span></span><svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+  head.querySelector('span').textContent = label;
+  head.addEventListener('click', function(){ sec.classList.toggle('open'); });
+  sec.appendChild(head);
+  const body = document.createElement('div');
+  body.className = 'acc-body';
+  let html = '<div style="font-weight:800;font-size:.85rem;color:var(--primary);margin:.4rem 0 .2rem">常用句型</div><ul class="tp-phrases">';
+  tp.ph.forEach(function(p){ html += '<li>' + p[0] + '<div class="zh">' + p[1] + '</div></li>'; });
+  html += '</ul><div style="font-weight:800;font-size:.85rem;color:var(--primary);margin:.5rem 0 .2rem">討論問題</div><ul class="tp-qs">';
+  tp.qs.forEach(function(qq){ html += '<li>' + qq + '</li>'; });
+  html += '</ul><div style="margin-top:.7rem"><button class="btn btn-sm b-go">開始對話</button></div>';
+  body.innerHTML = html;
+  body.querySelector('.b-go').addEventListener('click', function(){
+    talkTopicPreload = tp.t;
+    document.querySelector('.bottom-nav button[data-tab="talk"]').click();
+    talkChat.reset('Great, let\'s talk about "' + tp.t + '". ' + tp.qs[0]);
+  });
+  sec.appendChild(body);
+  return sec;
+}
+
+const dayIdx = Math.floor(Date.now() / 86400000) % TOPICS.length;
+document.getElementById('topicToday').appendChild(topicCard(TOPICS[dayIdx], true, true));
+const listEl = document.getElementById('topicList');
+TOPICS.forEach(function(tp, i){ if (i !== dayIdx) listEl.appendChild(topicCard(tp, false, false)); });
+
+/* ---------- 今日實戰：理財小幫手真實資料 ---------- */
+const MB_BASE = 'https://iriswen518-alt.github.io/morning-board/data/';
+const IDX_SPEAK = {
+  'S&P 500':            { en: 'The S&P 500',                          zh: '標普五百' },
+  'Nasdaq Composite':   { en: 'The Nasdaq Composite',                 zh: '那斯達克' },
+  'Dow Jones':          { en: 'The Dow Jones Industrial Average',     zh: '道瓊工業' },
+  'PHLX Semiconductor': { en: 'The Philadelphia Semiconductor Index', zh: '費城半導' },
+  'TAIEX 加權指數':      { en: 'The Taiwan TAIEX',                     zh: '台股加權' },
+  'Nikkei 225':         { en: 'The Nikkei 225',                       zh: '日經指數' },
+};
+function idxSentence(name, close, pct){
+  const sp = IDX_SPEAK[name];
+  if (!sp || close == null || pct == null || isNaN(close) || isNaN(pct)) return null;
+  const p = Math.abs(pct);
+  let pctStr = p.toFixed(1);
+  if (pctStr.slice(-2) === '.0') pctStr = pctStr.slice(0, -2);
+  const priceStr = Math.round(close).toLocaleString('en-US');
+  let en, zh;
+  if (p < 0.05) {
+    en = sp.en + ' was little changed at ' + priceStr + ' points.';
+    zh = sp.zh + '幾近持平，收' + priceStr + '點。';
+  } else if (pct > 0) {
+    en = sp.en + ' rose ' + pctStr + ' percent to close at ' + priceStr + ' points.';
+    zh = sp.zh + '上漲' + pctStr + '%，收' + priceStr + '點。';
+  } else {
+    en = sp.en + ' fell ' + pctStr + ' percent to close at ' + priceStr + ' points.';
+    zh = sp.zh + '下跌' + pctStr + '%，收' + priceStr + '點。';
+  }
+  return { en: en, zh: zh };
+}
+
+async function loadDaily(){
+  const marketEl = document.getElementById('dailyMarket');
+  const newsEl = document.getElementById('dailyNews');
+  let market = null, news = null;
+  try {
+    const rs = await Promise.all([
+      fetch(MB_BASE + 'market.json', { cache: 'no-cache' }),
+      fetch(MB_BASE + 'news.json',   { cache: 'no-cache' }),
+    ]);
+    market = await rs[0].json();
+    news = await rs[1].json();
+  } catch(e){
+    marketEl.innerHTML = ''; newsEl.innerHTML = '';
+    marketEl.appendChild(Object.assign(document.createElement('p'), { className: 'hint', textContent: '今日資料載入失敗，請確認網路後重新整理' }));
+    return;
+  }
+
+  /* 日期 chip */
+  const nd = (news && news.news_date) || '';
+  if (nd.length === 10) document.getElementById('dailyDate').textContent = nd.slice(5).replace('-', '/');
+
+  /* 行情朗讀 */
+  marketEl.innerHTML = '';
+  const cd = (market && market.closing_date) || '';
+  if (cd) {
+    const p = document.createElement('p');
+    p.className = 'hint'; p.style.textAlign = 'left'; p.style.marginTop = '0';
+    p.textContent = '收盤日 ' + cd + '，用英文唸出每一句，練到 80 分以上';
+    marketEl.appendChild(p);
+  }
+  let count = 0;
+  ((market && market.indices) || []).forEach(function(ix){
+    const s = idxSentence(ix.name, ix.close, ix.daily_pct);
+    if (s) { marketEl.appendChild(makeShadowItem(s)); count++; }
+  });
+  if (!count) marketEl.appendChild(Object.assign(document.createElement('p'), { className: 'hint', textContent: '今日尚無行情資料' }));
+
+  /* 新聞討論 */
+  newsEl.innerHTML = '';
+  ((news && news.sections) || []).forEach(function(secData){
+    if (!secData.items || !secData.items.length) return;
+    const sec = document.createElement('div');
+    sec.className = 'acc-sec';
+    const head = document.createElement('button');
+    head.className = 'acc-head';
+    head.innerHTML = '<span></span><svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+    head.querySelector('span').textContent = secData.section_zh || secData.section;
+    head.addEventListener('click', function(){ sec.classList.toggle('open'); });
+    sec.appendChild(head);
+    const body = document.createElement('div');
+    body.className = 'acc-body';
+    secData.items.forEach(function(it){
+      if (!it.title_en) return;
+      const d = document.createElement('div');
+      d.className = 'sh-item';
+      d.innerHTML = '<div class="sh-en"></div><div class="sh-zh zh1"></div>' +
+        '<div class="sh-zh" style="margin-top:.35rem;color:var(--text)"></div><div class="sh-zh zh2"></div>' +
+        '<div class="sh-btns">' +
+        '<button class="btn btn-ghost btn-sm b-play">播放</button>' +
+        '<button class="btn btn-ghost btn-sm b-slow">慢速</button>' +
+        '<button class="btn btn-sm b-talk">討論</button>' +
+        '<a class="btn btn-ghost btn-sm" target="_blank" rel="noopener" style="text-decoration:none">原文</a>' +
+        '</div>';
+      d.querySelector('.sh-en').textContent = it.title_en;
+      d.querySelector('.zh1').textContent = it.title_zh || '';
+      d.querySelectorAll('.sh-zh')[1].textContent = it.summary_en || '';
+      d.querySelector('.zh2').textContent = it.summary_zh || '';
+      const link = d.querySelector('a');
+      if (it.source_url) { link.href = it.source_url; link.textContent = '原文'; } else { link.remove(); }
+      const full = it.title_en + '. ' + (it.summary_en || '');
+      d.querySelector('.b-play').addEventListener('click', function(){ speak(full, 0.95); });
+      d.querySelector('.b-slow').addEventListener('click', function(){ speak(full, 0.65); });
+      d.querySelector('.b-talk').addEventListener('click', function(){
+        talkTopicPreload = 'Today\'s news — ' + it.title_en + ': ' + (it.summary_en || '');
+        document.querySelector('.bottom-nav button[data-tab="talk"]').click();
+        talkChat.reset('Let\'s discuss today\'s news: "' + it.title_en + '". What is your take on this?');
+      });
+      body.appendChild(d);
+    });
+    sec.appendChild(body);
+    newsEl.appendChild(sec);
+  });
+
+  /* 注入 AI 對話的今日脈絡 */
+  const parts = [];
+  if (cd) parts.push('Closing date: ' + cd);
+  ((market && market.indices) || []).slice(0, 12).forEach(function(ix){
+    if (ix.close != null && ix.daily_pct != null) parts.push(ix.name + ': ' + Math.round(ix.close).toLocaleString('en-US') + ' (' + (ix.daily_pct > 0 ? '+' : '') + ix.daily_pct + '%)');
+  });
+  if (news && news.tldr && news.tldr.length) parts.push('Top news: ' + news.tldr.join(' / '));
+  todayCtx = parts.join('\n').slice(0, 1500);
+}
+loadDaily();
+
+if (!SR) document.getElementById('talkHint').textContent = '此瀏覽器不支援語音辨識，請改用 Chrome 開啟本頁';
+</script>
+</body>
+</html>
