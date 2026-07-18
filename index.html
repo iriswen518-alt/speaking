@@ -28,14 +28,14 @@
     --danger: #c94f4f;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { height: 100%; }
+  html { height: 100%; font-size: 17.5px; }
   body {
-    height: 100%; display: flex; flex-direction: column;
+    height: 100%; height: 100dvh; display: flex; flex-direction: column;
     font-family: 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
     background: var(--bg); color: var(--text); letter-spacing: .01em;
     -webkit-font-smoothing: antialiased;
   }
-  #page-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  #page-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
   a { color: var(--primary); }
 
   .hero {
@@ -50,7 +50,7 @@
   .hero p { font-size: .88rem; opacity: .9; margin-top: .3rem; }
 
   .bottom-nav {
-    position: relative; z-index: 9000; flex-shrink: 0; background: rgba(255,255,255,.97);
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 9000; background: rgba(255,255,255,.97);
     backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
     border-top: 1px solid var(--border); box-shadow: 0 -2px 16px rgba(0,31,77,.08);
     display: flex; justify-content: space-around; align-items: stretch;
@@ -132,14 +132,18 @@
   /* shadowing */
   .sh-item { border-bottom: 1px dashed var(--border); padding: .7rem 0; }
   .sh-item:last-child { border-bottom: none; }
-  .sh-en { font-size: .98rem; font-weight: 700; line-height: 1.5; }
-  .sh-zh { font-size: .8rem; color: var(--muted); margin-top: .15rem; line-height: 1.5; }
+  .sh-en { font-size: 1.12rem; font-weight: 700; line-height: 1.55; }
+  .sh-zh { font-size: .92rem; color: var(--muted); margin-top: .2rem; line-height: 1.55; }
   .sh-btns { display: flex; gap: .45rem; margin-top: .5rem; flex-wrap: wrap; align-items: center; }
-  .sh-result { margin-top: .55rem; font-size: .9rem; line-height: 1.7; display: none; }
+  .sh-result { margin-top: .55rem; font-size: .98rem; line-height: 1.7; display: none; }
   .sh-result .score { font-weight: 800; margin-right: .4rem; }
   .sh-result .w-hit { color: #0e7d5b; }
   .sh-result .w-miss { color: var(--danger); text-decoration: underline; }
-  .sh-heard { font-size: .8rem; color: var(--muted); margin-top: .2rem; }
+  .sh-heard { font-size: .88rem; color: var(--muted); margin-top: .2rem; }
+
+  /* 新聞討論：閱讀內容再放大一級 */
+  #dailyNews .sh-en { font-size: 1.18rem; }
+  #dailyNews .sh-zh { font-size: 1rem; line-height: 1.7; }
 
   /* topics */
   .tp-phrases { margin: .5rem 0; }
@@ -300,17 +304,24 @@ function makeRecognizer(onFinal, onInterim, onEnd){
   if (!SR) return null;
   const r = new SR();
   r.lang = 'en-US'; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
-  let finalText = '';
+  let finalText = '', interimText = '';
   r.onresult = function(ev){
     let interim = '';
     for (let i = ev.resultIndex; i < ev.results.length; i++) {
       if (ev.results[i].isFinal) finalText += ev.results[i][0].transcript;
       else interim += ev.results[i][0].transcript;
     }
+    /* iOS Safari 常整段只給 interim、不標 isFinal，故留存最後一段當結束時的結果 */
+    if (interim) interimText = interim;
     if (interim && onInterim) onInterim(finalText + interim);
   };
-  r.onend = function(){ if (onEnd) onEnd(); if (finalText.trim() && onFinal) onFinal(finalText.trim()); finalText=''; };
-  r.onerror = function(){ finalText=''; };
+  r.onend = function(){
+    if (onEnd) onEnd();
+    const text = (finalText.trim() || interimText.trim());
+    if (text && onFinal) onFinal(text);
+    finalText = ''; interimText = '';
+  };
+  r.onerror = function(){ finalText=''; interimText=''; };
   return r;
 }
 
@@ -534,10 +545,12 @@ function makeShadowItem(it){
   d.querySelector('.b-play').addEventListener('click', function(){ speak(it.en, 0.95); });
   d.querySelector('.b-slow').addEventListener('click', function(){ speak(it.en, 0.65); });
   const recBtn = d.querySelector('.b-rec');
+  let rec = null, recTimer = null;
   recBtn.addEventListener('click', function(){
-    if (!SR) { alert('此瀏覽器不支援語音辨識，請改用 Chrome'); return; }
+    if (!SR) { alert('此瀏覽器不支援語音辨識，請改用 Chrome 或 Safari'); return; }
+    if (rec) { try { rec.stop(); } catch(e){} return; }   /* 再按一次＝唸完，立即評分 */
     speechSynthesis.cancel();
-    recBtn.textContent = '聆聽中';
+    recBtn.textContent = '完成';
     const r = makeRecognizer(function(heardText){
       const tw = normWords(it.en), hw = normWords(heardText);
       const hit = lcsMatch(tw, hw);
@@ -564,8 +577,12 @@ function makeShadowItem(it){
         res.appendChild(span);
       });
       d.querySelector('.sh-heard').textContent = '你唸的: ' + heardText;
-    }, null, function(){ recBtn.textContent = '跟讀'; });
-    try { r.start(); } catch(e){ recBtn.textContent = '跟讀'; }
+    }, null, function(){ recBtn.textContent = '跟讀'; rec = null; clearTimeout(recTimer); });
+    try {
+      r.start(); rec = r;
+      /* iOS 靜音自動結束不可靠，15 秒保險自動收音評分 */
+      recTimer = setTimeout(function(){ try { if (rec) rec.stop(); } catch(e){} }, 15000);
+    } catch(e){ recBtn.textContent = '跟讀'; rec = null; }
   });
   return d;
 }
